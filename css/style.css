@@ -1,0 +1,12 @@
+@font-face {
+    font-family: "vazir";
+    src: url("/fonts/Vazir-Regular.eot");
+    src: url("/fonts/Vazir-Regular.ttf") format('truetype'),
+         url("/fonts/Vazir-Regular.woff") format('woff')
+}
+body{
+    font-family: "vazir";
+}
+.Toastify__toast{
+    font-family: "vazir" !important
+}
