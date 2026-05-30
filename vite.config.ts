@@ -9,5 +9,9 @@ export default defineConfig({
     watch: {
       ignored: ['**/db.json'] // این خط می‌گوید تغییرات db.json را نادیده بگیر
     }
-  }
+  },
+  build: {
+    chunkSizeWarningLimit: 1000
+  },
+   
 })

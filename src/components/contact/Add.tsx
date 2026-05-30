@@ -1,12 +1,13 @@
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { ContactContext } from "../../context/contactContext";
 import {Formik,Form,ErrorMessage, Field} from 'formik'
 import {contactSchema} from "../../validations/contactValidation"
 import Spinner from "../Spinner";
+import type { IContact } from "../../types/IContact";
 
 interface IAddProps{
-    createContactSubmit:(event)=>void
+    createContactSubmit:(data:IContact)=>void
 
 }
 export default function Add({createContactSubmit}:IAddProps){
@@ -18,11 +19,10 @@ if (loading){
 }
 return(
     <>
-        <Formik initialValues={{
+        <Formik initialValues={{id:"",
             fullname:"",email:"",mobile:"",job:"",group:"",photo:""}} 
             validationSchema={contactSchema}
-            onSubmit={(values)=>{
-            console.log(values);
+            onSubmit={(values:IContact)=>{
             createContactSubmit(values)}} >
                 {({ errors, touched }) => (
                 <Form className="w-full max-w-lg">

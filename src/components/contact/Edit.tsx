@@ -7,24 +7,30 @@ import { useEffect, useState } from "react"
 import { getContact ,updateContact} from "../../services/contactService"
 import Spinner from "../Spinner"
 import { ContactContext } from "../../context/contactContext"
-import { ToastContainer, toast } from 'react-toastify';
+import {toast } from 'react-toastify';
 
 export default function Edit(){
     const navigator = useNavigate()
-    const urlParams = useParams()
     const {loading,setLoading,groups,setContacts,setsearchFilteredContact} = useContext(ContactContext)
-    
-    const [editContactState,setEditContactState] =useState<IContact | null>()
+    const { contactId } = useParams<{ contactId: string }>()
+    const [editContactState,setEditContactState] =useState<IContact>({
+        fullname:"",email:"",group:"",job:"",mobile:"",photo:"",id:"" })
     
         
     useEffect(()=>{
         const fetchData=async ()=>{
             setLoading(true)
-            const {data:contactEdit} =await getContact(urlParams.contactId)
-            setLoading(prev=>(!prev))
             
+
+            if(contactId){
+                const {data:contactEdit} =await getContact(contactId)
+                setLoading(false)
+                
+                console.log(contactEdit);
+                
+                setEditContactState(contactEdit)
+            }
             
-            setEditContactState(contactEdit)
         }
         fetchData()
 
@@ -32,21 +38,20 @@ export default function Edit(){
     },[])
 
    
-    const editContactSubmit =async (values)=>{      
+    const editContactSubmit =async (values:IContact)=>{      
         setLoading(true)
         try{
             const resp = await updateContact(values,
                 editContactState.id)
             
             if (resp.status==200){
-                
                 setContacts(draft => {
-                    const contactIndex = draft.findIndex((c) => c.id === editContactState.id);
-                    draft[contactIndex] = {...editContactState}
+                    const contactIndex = draft.findIndex((c) => c.id === editContactState!.id);                   
+                    draft[contactIndex] = {...values}  as IContact
                 })
                 setsearchFilteredContact(draft => {
-                    const contactIndex = draft.findIndex((c) => c.id === editContactState.id);
-                    draft[contactIndex] = {...editContactState}
+                    const contactIndex = draft.findIndex((c) => c.id === editContactState!.id);
+                    draft[contactIndex] = {...values}  as IContact
                 })
                 
                 
@@ -57,7 +62,7 @@ export default function Edit(){
 
         }
         catch(err){
-            console.log(err.message)
+            console.log((err as Error).message)
         }
         
 
@@ -70,6 +75,7 @@ export default function Edit(){
     return(
 
         <Formik initialValues={{
+            id:editContactState?.id,
             fullname:editContactState?.fullname
             ,email:editContactState?.email,
             mobile:editContactState?.mobile,
@@ -77,7 +83,7 @@ export default function Edit(){
             group:editContactState?.group,
             photo:editContactState?.photo}} 
             validationSchema={contactSchema}
-            onSubmit={(values)=>{
+            onSubmit={(values:IContact)=>{
             editContactSubmit(values)}} >
                 {({ errors, touched }) => (
                 <Form className="w-full max-w-lg">

@@ -1,4 +1,3 @@
-import './App.css'
 import {Route,Routes,Navigate,useNavigate,useSearchParams} from "react-router-dom"
 import Contacts from './components/contact/contacts'
 import  Detail from "./components/contact/Detail"
@@ -12,25 +11,26 @@ import Swal from "sweetalert2";
 import {ContactContext} from "./context/contactContext"
 import { useImmer } from "use-immer";
 import { ToastContainer, toast } from 'react-toastify';
-
+import type { IContact } from './types/IContact'
+import {debounce} from "lodash"
 
 function App() {
   
   
   const [loading, setLoading] = useState(true);
   const navigate= useNavigate()
-  const [getContacts,setContacts] = useImmer([])
-  const [searchFilteredContact,setsearchFilteredContact] = useImmer([])
+  const [getContacts,setContacts] = useImmer<IContact[]>([])
+  const [searchFilteredContact,setsearchFilteredContact] = useImmer<IContact[]>([])
   const [getGroups,setGroups] = useState([])
   const [searchParams,setSearchParams] = useSearchParams()
    
 
 
-  async function  createContactSubmit(values){   
+  async function  createContactSubmit(values:IContact){   
     try{
       
       setLoading((prev)=>(!prev))
-      const {status,data}= await addContact(values)
+      const {status}= await addContact(values)
       if (status===201){
         setContacts((draft)=>{draft.push(values)})
         setsearchFilteredContact((draft)=>{draft.push(values)})
@@ -43,8 +43,8 @@ function App() {
     }
     catch(err){
       setLoading(false)
-      console.log(err.message)
-      console.log(err);
+      console.log((err as Error).message)
+
       
     }   
   }
@@ -57,15 +57,16 @@ function App() {
             const {data:groupData} = await getAllGroups()
             setContacts(contactData)
             setGroups(groupData)
-            if(searchParams.get("filter")){
-              searchHandler(searchParams.get("filter"))
+            const searchVal = searchParams.get("filter")
+            if(searchVal){
+              searchHandler(searchVal)
             }
             else  setsearchFilteredContact(contactData)
 
             setLoading(false)
         }
         catch(error){
-            console.log(error.message);
+            console.log((error as Error).message);
             setLoading(false)              
 
         }
@@ -107,24 +108,27 @@ async function deleteHandler(id:string){
       }
   }
   catch(err){
-      console.log(err.message);
+      console.log((err as Error).message);
       setLoading(false)
 
       
   }
 }
 
-let filterTimeout;
-const searchHandler = async (value)=>{
-  clearTimeout(filterTimeout)
-  setSearchParams({"filter":value})  
+const searchHandler = async (value:string)=>{
+  setSearchParams({filter:value})
+  
+  
   if (value)
   {
-    filterTimeout = setTimeout(()=>{
-      setsearchFilteredContact((draft)=>
-        draft.filter((item)=>{
-        return item.fullname.toLowerCase().includes(value.toLowerCase())
-      }))})
+    const debounced =debounce((value: string) => {
+      const filtered = getContacts.filter((item) =>
+        item.fullname.toLowerCase().includes(value.toLowerCase())
+      );   
+    
+      setsearchFilteredContact(filtered);
+    }, 500);
+    debounced(value)
   }
   else{
     setsearchFilteredContact(getContacts)
@@ -146,7 +150,7 @@ const searchHandler = async (value)=>{
     setsearchFilteredContact,
     searchHandler,
     searchParam:searchParams.get("filter")||"",
-    deleteContactHandler:deleteContactConfirm
+    deleteContactConfirm:deleteContactConfirm
   }}>
    <Layout />
    <ToastContainer   position="top-center"

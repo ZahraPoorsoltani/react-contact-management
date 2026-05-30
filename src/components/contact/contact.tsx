@@ -10,7 +10,7 @@ interface IContactProps{
   user:IContact,
 }
 export default function Contact({user}:IContactProps) {
-  const {deleteContactHandler} = useContext(ContactContext)
+  const {deleteContactConfirm,groups} = useContext(ContactContext)
   return (
       <div className="flex border border-gray-400 bg-white rounded-lg overflow-hidden">
         <img src={user.photo|| Contact_def}  className="w-28 h-28 object-cover" />
@@ -31,7 +31,7 @@ export default function Contact({user}:IContactProps) {
             </p>
            
             <p className="border-b  border-l border-r  rounded  p-2 border-gray-400"> گروه:
-              {user.group}
+              {groups.find(item=>(item.id==user.group))?.name}
             </p>
           </div>
           <div className="flex flex-col justify-center p-1 flex-1">
@@ -39,7 +39,7 @@ export default function Contact({user}:IContactProps) {
                 type="button" 
                 onClick={(e) => {
                   e.preventDefault();
-                  deleteContactHandler(user.id, user.fullname);
+                  deleteContactConfirm(user.id, user.fullname);
               }}
                 className="bg-red-600 p-2 mb-2 rounded"
             >

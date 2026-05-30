@@ -11,10 +11,10 @@ type ContactContextType = {
     setContacts: Updater<IContact[]>;
     searchFilteredContact: IContact[];
     setsearchFilteredContact: Updater<IContact[]>;
-    searchHandler,
+    searchHandler:(value:string)=>void,
     searchParam: string,
     groups:IGroup[],
-    deleteContactHandler: (contactId: string, fullname: string)=>void
+    deleteContactConfirm: (contactId: string, fullname: string)=>void
   };
 
 export const ContactContext = createContext<ContactContextType>({
@@ -24,9 +24,9 @@ export const ContactContext = createContext<ContactContextType>({
     setContacts:()=>{},
     searchFilteredContact:[],
     setsearchFilteredContact:()=>{},
-    searchHandler:(e)=>{},
+    searchHandler:()=>{},
     searchParam:"",
     groups:[],
-    deleteContactHandler:(contactId:string,fullname:string)=>{}
+    deleteContactConfirm:()=>{}
     
 })

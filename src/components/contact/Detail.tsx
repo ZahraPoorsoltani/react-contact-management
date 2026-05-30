@@ -8,26 +8,25 @@ import Spinner from '../Spinner'
 import Contact_def from "../../assets/imgs/Contact_def.jpg"
 
 export default function Detail(){
-    const  urlParams = useParams()
     const {loading,setLoading,groups} = useContext(ContactContext)
-
-    
     
     setLoading(false)
     const [contactState,setcontactState] = useState({
        id:"",fullname:"",email:"",mobile:"",job:"", group:"",photo:"" })
     const [err, setErr] = useState(false)
+    const { contactId } = useParams<{ contactId: string }>()
 
     
     useEffect(()=>{
         const fetchData=async ()=>{
             try{
-
-                const {data:selectedContact} = await getContact(urlParams.contactId)                
-                setLoading(false) 
-                console.log(selectedContact);
-                              
-                setcontactState(selectedContact)
+                
+                if(contactId){
+                    const {data:selectedContact} = await getContact(contactId)                
+                    setLoading(false)                               
+                    setcontactState(selectedContact)
+                }
+               
 
             }
             catch(err){
